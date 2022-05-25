@@ -78,13 +78,14 @@ extern "C" void app_main(void)
     std::thread thread_2(thread_func);
 
     // Create a thread using deafult values that can run on any core
-    cfg = esp_pthread_get_default_config();
+    cfg = create_config("MQTT Listener", 1, 3 * 1024, 5);
     esp_pthread_set_cfg(&cfg);
     std::thread mqtt_thread(mqtt_app_start);
 
 
     // Let the main task do something too
     while (true) {
+#ifdef NOTNOW
         std::stringstream ss;
         ss << "core id: " << xPortGetCoreID()
            << ", prio: " << uxTaskPriorityGet(nullptr)
@@ -92,6 +93,7 @@ extern "C" void app_main(void)
            << uxTaskGetStackHighWaterMark(nullptr)
            << " bytes.";
         ESP_LOGI(pcTaskGetName(nullptr), "%s", ss.str().c_str());
+#endif
         std::this_thread::sleep_for(sleep_time);
     }
 }
