@@ -27,6 +27,11 @@
 
 #include "thread.hh"
 
+extern "C" {
+#include "mqtt.h"    
+}
+
+
 static char *TAG = (char *)"OGESP";
 
 extern "C" void app_main(void)
@@ -71,6 +76,12 @@ extern "C" void app_main(void)
     cfg = create_config("Core 1", 1, 3 * 1024, 5);
     esp_pthread_set_cfg(&cfg);
     std::thread thread_2(thread_func);
+
+    // Create a thread using deafult values that can run on any core
+    cfg = esp_pthread_get_default_config();
+    esp_pthread_set_cfg(&cfg);
+    std::thread mqtt_thread(mqtt_app_start);
+
 
     // Let the main task do something too
     while (true) {

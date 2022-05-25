@@ -1,5 +1,6 @@
 #include "thread.hh"
 
+
 void print_thread_info(const char *extra = nullptr)
 {
     std::stringstream ss;
@@ -55,9 +56,4 @@ esp_pthread_cfg_t create_config(const char *name, int core_id, int stack, int pr
     cfg.stack_size = stack;
     cfg.prio = prio;
     return cfg;
-}
-
-void thread_init()
-{
-
 }
