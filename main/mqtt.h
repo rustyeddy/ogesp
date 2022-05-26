@@ -1,3 +1,6 @@
-#include "mqtt_client.h"
+#pragma once
 
-void mqtt_app_start(void);
+#include <mqtt_client.h>
+
+void mqtt_app_start();
+void publish(char *topic, char *val);

@@ -26,13 +26,39 @@
 #include "protocol_examples_common.h"
 
 #include "thread.hh"
+#include "dht.hh"
 
 extern "C" {
 #include "mqtt.h"    
-}
-
+};
 
 static char *TAG = (char *)"OGESP";
+
+static void print_temp()
+{
+    int16_t h = 0, t = 0;
+    gpio_num_t pin = (gpio_num_t) 18;
+
+    auto err = dht_read_data(DHT_TYPE_AM2301, pin, &h, &t);
+    if (err != ESP_OK) {
+        printf("Temp read error: %d\n", err);
+        return;
+    }
+
+    char tstr[10], hstr[10];
+    sprintf(tstr, "%d", t);
+    sprintf(hstr, "%d", h);
+
+#ifndef notnow
+    std::cout << "--------------------------------\n"
+              << "temp: " << tstr << std::endl
+              << " hum: " << hstr << std::endl
+              << "--------------------------------" << std::endl;
+#endif
+
+    publish((char *) "iote/data/station/tempc", tstr);
+    publish((char *) "iote/data/station/humidity", hstr);
+}
 
 extern "C" void app_main(void)
 {
@@ -85,15 +111,7 @@ extern "C" void app_main(void)
 
     // Let the main task do something too
     while (true) {
-#ifdef NOTNOW
-        std::stringstream ss;
-        ss << "core id: " << xPortGetCoreID()
-           << ", prio: " << uxTaskPriorityGet(nullptr)
-           << ", minimum free stack: "
-           << uxTaskGetStackHighWaterMark(nullptr)
-           << " bytes.";
-        ESP_LOGI(pcTaskGetName(nullptr), "%s", ss.str().c_str());
-#endif
+        print_temp();
         std::this_thread::sleep_for(sleep_time);
     }
 }
